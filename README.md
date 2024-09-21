@@ -17,7 +17,5 @@ the result automatically updates when a valid expression is inputted
 
 ## how to run
 after installing dependencies, run <br>
-`git clone https://github.com/taice/calculator <br>
-cd calculator <br>
-cargo run`<br>
+`git clone https://github.com/taice/calculator && cd calculator && cargo run`<br>
 inside the main directory
