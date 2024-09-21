@@ -9,5 +9,4 @@ fn main() -> io::Result<()> {
     let app_result = app::run(terminal);
     ratatui::restore();
     app_result
-    // test
 }
