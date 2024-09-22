@@ -169,6 +169,8 @@ pub fn run(mut terminal: DefaultTerminal) -> io::Result<()> {
             }
             if key.code == KeyCode::Backspace {
                 expression_string.pop();
+            } else if key.code == KeyCode::Enter {
+                expression_string = expression_result.to_string();
             }
         }
     }
