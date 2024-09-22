@@ -37,8 +37,8 @@ fn strip_md(mut input: String) -> Option<String> {
     if let Some((mut start, mut end, mut division)) = get_md(&input) {
         while (start, end) != (0, 0) {
             let md: &str = &input[start..end];
-            let num1 = get_left_num(md);
-            let num2 = get_right_num(md);
+            let num1 = get_left_num(md)?;
+            let num2 = get_right_num(md)?;
             let num: f64 = if division { num1 / num2 } else { num1 * num2 };
 
             input.replace_range(start..end, &num.to_string());
@@ -53,8 +53,8 @@ fn strip_as(mut input: String) -> Option<f64> {
     if let Some((mut start, mut end, mut minus)) = get_as(&input) {
         while (start, end) != (0, 0) {
             let md: &str = &input[start..end];
-            let num1 = get_left_num(md);
-            let num2 = get_right_num(md);
+            let num1 = get_left_num(md)?;
+            let num2 = get_right_num(md)?;
 
             let num: f64 = if minus { num1 - num2 } else { num1 + num2 };
 
@@ -196,7 +196,7 @@ fn get_as(input: &str) -> Option<(usize, usize, bool)> {
     }
 }
 
-pub fn get_right_num(expression: &str) -> f64 {
+pub fn get_right_num(expression: &str) -> Option<f64> {
     let mut start = expression.len();
     let mut did = false;
 
@@ -208,14 +208,17 @@ pub fn get_right_num(expression: &str) -> f64 {
     }
 
     if !did {
-        return expression.parse().unwrap();
+        return Some(expression.parse().unwrap());
     }
 
     let num = &expression[start..expression.len()];
-    num.parse::<f64>().unwrap()
+    if num.is_empty() {
+        return None;
+    }
+    Some(num.trim().parse::<f64>().unwrap())
 }
 
-fn get_left_num(expression: &str) -> f64 {
+fn get_left_num(expression: &str) -> Option<f64> {
     let mut end = 0;
     let mut did = false;
 
@@ -228,11 +231,14 @@ fn get_left_num(expression: &str) -> f64 {
     }
 
     if !did {
-        return expression.parse().unwrap();
+        return Some(expression.parse().unwrap());
     }
 
     let num = &expression[0..end];
-    num.parse::<f64>().unwrap()
+    if num.is_empty() {
+        return None;
+    }
+    Some(num.trim().parse::<f64>().unwrap())
 }
 
 fn rm_whitespace(input: &str) -> String {
@@ -283,13 +289,22 @@ mod tests {
 
     #[test]
     fn get_left_num_works() {
-        assert_eq!(get_left_num("43.4525252/485835295285994"), 43.4525252);
-        assert_eq!(get_left_num("9328429838952/34.3984858"), 9328429838952.0);
+        assert_eq!(
+            get_left_num("43.4525252/485835295285994").unwrap(),
+            43.4525252
+        );
+        assert_eq!(
+            get_left_num("9328429838952/34.3984858").unwrap(),
+            9328429838952.0
+        );
     }
 
     #[test]
     fn get_right_num_works() {
-        assert_eq!(get_right_num("9328429838952/34.3984858"), 34.3984858);
+        assert_eq!(
+            get_right_num("9328429838952/34.3984858").unwrap(),
+            34.3984858
+        );
     }
 
     #[test]
@@ -323,5 +338,6 @@ mod tests {
             get_result_from_string("4+2*8/(4/2)*1+4*(3+4)-5.0*(2/8)").unwrap(),
             38.75
         );
+        assert_eq!(get_result_from_string("4-5"), None);
     }
 }
